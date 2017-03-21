@@ -15,6 +15,9 @@ import main.lock.example.PrintQueue;
 import main.producer_consumer.Consumer;
 import main.producer_consumer.EventStorage;
 import main.producer_consumer.Producer;
+import main.read_write_lock.PricesInfo;
+import main.read_write_lock.Reader;
+import main.read_write_lock.Writer;
 
 /**
  * Created by G.Chalauri on 03/21/17.
@@ -31,7 +34,50 @@ public class Main {
 
         // producerConsumerExample();
 
-        lockExample();
+        // lockExample();
+
+        //readWriteLockExample();
+
+        lockFairnessExample();
+    }
+
+    private static void lockFairnessExample() {
+        main.lock_fairness.PrintQueue printQueue = new main.lock_fairness.PrintQueue();
+
+        Thread thread[] = new Thread[10];
+        for (int i = 0; i < 10; i++) {
+            thread[i] = new Thread(new main.lock_fairness.Job(printQueue), "Thread " + i);
+        }
+
+        for (int i = 0; i < 10; i++) {
+            thread[i].start();
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static void readWriteLockExample() {
+        PricesInfo pricesInfo = new PricesInfo();
+
+        Reader readers[] = new Reader[5];
+        Thread threadsReader[] = new Thread[5];
+
+        for (int i = 0; i < 5; i++) {
+            readers[i] = new Reader(pricesInfo);
+            threadsReader[i] = new Thread(readers[i]);
+        }
+
+        Writer writer = new Writer(pricesInfo);
+        Thread threadWriter = new Thread(writer);
+
+        for (int i = 0; i < 5; i++) {
+            threadsReader[i].start();
+        }
+        threadWriter.start();
+
     }
 
 

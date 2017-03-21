@@ -12,6 +12,8 @@ import main.cinema.example.TicketOffice1;
 import main.cinema.example.TicketOffice2;
 import main.lock.example.Job;
 import main.lock.example.PrintQueue;
+import main.multiple_conditions.Buffer;
+import main.multiple_conditions.FileMock;
 import main.producer_consumer.Consumer;
 import main.producer_consumer.EventStorage;
 import main.producer_consumer.Producer;
@@ -38,7 +40,29 @@ public class Main {
 
         //readWriteLockExample();
 
-        lockFairnessExample();
+        //lockFairnessExample();
+
+        multipleConditionsExample();
+    }
+
+    private static void multipleConditionsExample() {
+        FileMock mock = new FileMock(100, 10);
+        Buffer buffer = new Buffer(20);
+
+        main.multiple_conditions.Producer producer = new main.multiple_conditions.Producer(mock, buffer);
+        Thread threadProducer = new Thread(producer, "Producer");
+
+        main.multiple_conditions.Consumer consumers[] = new main.multiple_conditions.Consumer[3];
+        Thread threadConsumers[] = new Thread[3];
+        for (int i = 0; i < 3; i++) {
+            consumers[i] = new main.multiple_conditions.Consumer(buffer);
+            threadConsumers[i] = new Thread(consumers[i], "Consumer " + i);
+        }
+
+        threadProducer.start();
+        for (int i=0; i<3; i++){
+            threadConsumers[i].start();
+        }
     }
 
     private static void lockFairnessExample() {
